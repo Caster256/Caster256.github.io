@@ -11,6 +11,17 @@ class Init {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
+    // 設定陰影
+    setRenderShadow() {
+        // 設定需渲染陰影效果
+        this.renderer.shadowMap.enabled = true;
+        // 陰影的毛邊優化
+        // THREE.BasicShadowMap = 0
+        // THREE.PCFShadowMap = 1
+        // THREE.PCFSoftShadowMap = 2
+        this.renderer.shadowMap.type = 2;
+    }
+
     // 取得渲染器
     getRender() {
         return this.renderer;
@@ -32,13 +43,18 @@ class Init {
         // 阻尼系數
         this.cameraControl.dampingFactor = 0.25;
         // 啟用自動旋轉
-        this.cameraControl.autoRotate = true;
+        // this.cameraControl.autoRotate = true;
     }
 
     // 三軸座標輔助
     useAxesHelper() {
         const axes = new THREE.AxesHelper(20);
         this.scene.add(axes);
+    }
+
+    // 設定光源的物件
+    setLightObj(obj) {
+        this.lightObj = obj;
     }
 
     // 渲染
@@ -53,6 +69,8 @@ class Init {
         if(this.stats !== undefined) {
             this.stats.update();
         }
+        // 點光源繞 Y 軸旋轉動畫
+        this.lightObj.pointLightAnimation();
         // 開始渲染
         this.renderer.render(this.scene, this.camera);
     }

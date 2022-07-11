@@ -4,6 +4,7 @@ class Creeper {
         this.scene = scene;
     }
 
+    // 初始化物件
     init() {
         // 宣告頭、身體、腳幾何體大小
         const headGeo = new THREE.BoxGeometry(4, 4, 4);
@@ -71,6 +72,18 @@ class Creeper {
         this.creeper.add(this.feet);
     }
 
+    // 加上陰影
+    setCreeperShadow() {
+        // 苦力怕投影設定，利用 traverse 遍歷各個子元件設定陰影
+        this.creeper.traverse(function(object) {
+            if (object instanceof THREE.Mesh) {
+                object.castShadow = true;
+                object.receiveShadow = true;
+            }
+        });
+    }
+
+    // 新增物件
     createCreeper() {
         this.init();
         this.scene.add(this.creeper);

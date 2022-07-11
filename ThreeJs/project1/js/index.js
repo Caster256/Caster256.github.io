@@ -15,15 +15,25 @@ init.useFPS();
 init.useAxesHelper();
 // 使用轉換視角
 init.useCameraControl();
+// 設定渲染器陰影
+init.setRenderShadow();
 // 取得渲染器
 const renderer = init.getRender();
 
 // 建立地板
 const floor = new Floor(scene);
 floor.createFloor();
+// 建立弟版的陰影
+floor.setFloorShadow();
 
 // 建立光源
 const light = new Light(scene);
+// 點光源
+light.usePointLight();
+// 設定點光源的陰影
+light.setPointLightShaddow();
+// 小球體模擬點光源實體
+light.useSphereLightMesh();
 // 環境光
 light.useAmbientLight();
 // 聚光燈
@@ -33,9 +43,13 @@ light.useSpotLight();
 const creeperObj = new Creeper(scene);
 // 新增怪物到畫面上
 creeperObj.createCreeper();
+// 建立陰影
+creeperObj.setCreeperShadow();
 
 // 將渲染出來的畫面放到網頁上的 DOM
 document.body.appendChild(renderer.domElement);
+// 設定光源的物件
+init.setLightObj(light);
 // 渲染
 init.render();
 
