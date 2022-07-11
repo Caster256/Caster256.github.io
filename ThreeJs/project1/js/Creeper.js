@@ -11,9 +11,7 @@ class Creeper {
         const footGeo = new THREE.BoxGeometry(2, 3, 2);
 
         // 苦力怕臉部貼圖
-        const headMap = new THREE.TextureLoader().load(
-            'images/creeper_face.png'
-        );
+        const headMap = new THREE.TextureLoader().load('images/creeper_face.png');
         // 苦力怕皮膚貼圖
         const skinMap = new THREE.TextureLoader().load('images/creeper_skin.png');
 

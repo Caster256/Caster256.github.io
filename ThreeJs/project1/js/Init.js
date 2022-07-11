@@ -32,7 +32,7 @@ class Init {
         // 阻尼系數
         this.cameraControl.dampingFactor = 0.25;
         // 啟用自動旋轉
-        // this.cameraControl.autoRotate = true;
+        this.cameraControl.autoRotate = true;
     }
 
     // 三軸座標輔助
