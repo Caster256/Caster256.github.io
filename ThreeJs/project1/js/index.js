@@ -24,7 +24,10 @@ floor.createFloor();
 
 // 建立光源
 const light = new Light(scene);
-light.useLight();
+// 環境光
+light.useAmbientLight();
+// 聚光燈
+light.useSpotLight();
 
 // 實體化怪物物件
 const creeperObj = new Creeper(scene);
