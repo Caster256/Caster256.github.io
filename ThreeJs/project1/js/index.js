@@ -32,8 +32,6 @@ const light = new Light(scene);
 light.usePointLight();
 // 設定點光源的陰影
 light.setPointLightShaddow();
-// 小球體模擬點光源實體
-// light.useSphereLightMesh();
 // 環境光
 light.useAmbientLight();
 // 聚光燈
@@ -59,14 +57,6 @@ function render() {
     if(cameraControl !== undefined) { cameraControl.update(); }
     // 若有使用 FPS 套件在耕莘
     if(stats !== undefined) { stats.update(); }
-    // 點光源繞 Y 軸旋轉動畫
-    // light.pointLightAnimation();
-    // 使用擺頭功能
-    // creeperObj.creeperHeadRotate();
-    // 苦力怕走動
-    // creeperObj.creeperFeetWalk();
-    // 苦力怕膨脹
-    // creeperObj.creeperScaleBody();
 
     // 開始渲染
     renderer.render(scene, camera);

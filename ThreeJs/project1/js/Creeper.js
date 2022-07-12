@@ -48,7 +48,7 @@ class Creeper {
         this.head = new THREE.Mesh(headGeo, headMaterials);
         this.head.position.set(0, 6, 0);
         // 稍微的擺頭
-        this.head.rotation.y = 0.5;
+        // this.head.rotation.y = 0.5;
 
         // 身體
         this.body = new THREE.Mesh(bodyGeo, skinMat);
