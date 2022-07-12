@@ -19,39 +19,30 @@
         <div id="title">
             <span>作品集</span>
         </div>
-        <div class="row l_r">
-            <div class="col-lg-3 col-md-3 col-sm-12 portfolio_div">
-                <div class="ih-item circle effect13 from_left_and_right">
-                    <a href="https://netreg.realsun.com.tw/web/3501120200" target="_blank">
-                        <div class="img">
-                            <img src="images/netreg.png" alt="img">
-                        </div>
-                        <div class="info">
-                            <div class="info-back">
-                                <h3>翊群耳鼻喉科診所</h3>
-                                <p>網路預約掛號平台</p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-3 col-sm-12 portfolio_div">
-                <div class="ih-item circle effect13 from_left_and_right">
-                    <a href="https://www.captainclinic.com.tw/" target="_blank">
-                        <div class="img">
-                            <img src="images/customer.png" alt="img">
-                        </div>
-                        <div class="info">
-                            <div class="info-back">
-                                <h3>科博特診所</h3>
-                                <p>客戶形象官網</p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-3 col-sm-12 portfolio_div">3</div>
-            <div class="col-lg-3 col-md-3 col-sm-12 portfolio_div">4</div>
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="home-tab" data-bs-toggle="tab"
+                        data-bs-target="#Web" type="button" role="tab"
+                        aria-controls="Web" aria-selected="true">Web</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="profile-tab" data-bs-toggle="tab"
+                        data-bs-target="#ReactJS" type="button" role="tab"
+                        aria-controls="ReactJS" aria-selected="false">ReactJS</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="contact-tab" data-bs-toggle="tab"
+                        data-bs-target="#ThreeJS" type="button" role="tab"
+                        aria-controls="ThreeJS" aria-selected="false">ThreeJS</button>
+            </li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="Web" role="tabpanel"
+                 aria-labelledby="Web-tab" tabindex="0"></div>
+            <div class="tab-pane fade" id="ReactJS" role="tabpanel"
+                 aria-labelledby="ReactJS-tab" tabindex="0"></div>
+            <div class="tab-pane fade" id="ThreeJS" role="tabpanel"
+                 aria-labelledby="ThreeJS-tab" tabindex="0"></div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
@@ -62,5 +53,13 @@
             integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
             crossorigin="anonymous"></script>
     <script src="js/portfolio.js"></script>
+    <script>
+        $(function () {
+            // 載入作品集
+            $('#Web').load('portfolio/web_info.html');
+            $('#ReactJS').load('portfolio/reactjs_info.html');
+            $('#ThreeJS').load('portfolio/threejs_info.html');
+        });
+    </script>
 </body>
 </html>
