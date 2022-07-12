@@ -33,7 +33,7 @@ light.usePointLight();
 // 設定點光源的陰影
 light.setPointLightShaddow();
 // 小球體模擬點光源實體
-light.useSphereLightMesh();
+// light.useSphereLightMesh();
 // 環境光
 light.useAmbientLight();
 // 聚光燈
@@ -48,10 +48,31 @@ creeperObj.setCreeperShadow();
 
 // 將渲染出來的畫面放到網頁上的 DOM
 document.body.appendChild(renderer.domElement);
-// 設定光源的物件
-init.setLightObj(light);
 // 渲染
-init.render();
+const cameraControl = init.getCameraControl();
+const stats = init.getStats();
+render();
+
+// 渲染的方法
+function render() {
+    // 有使用旋轉視角在更新
+    if(cameraControl !== undefined) { cameraControl.update(); }
+    // 若有使用 FPS 套件在耕莘
+    if(stats !== undefined) { stats.update(); }
+    // 點光源繞 Y 軸旋轉動畫
+    // light.pointLightAnimation();
+    // 使用擺頭功能
+    // creeperObj.creeperHeadRotate();
+    // 苦力怕走動
+    // creeperObj.creeperFeetWalk();
+    // 苦力怕膨脹
+    // creeperObj.creeperScaleBody();
+
+    // 開始渲染
+    renderer.render(scene, camera);
+    // 重複執行
+    requestAnimationFrame(render);
+}
 
 // 監聽螢幕寬高變化來做簡單 RWD 設定
 window.addEventListener('resize', function() {

@@ -1,7 +1,14 @@
 /* 建立怪物物件 */
 class Creeper {
     constructor(scene) {
+        // 場景
         this.scene = scene;
+        // 苦力怕擺頭的弧度值
+        this.rotateHeadOffset = 0;
+        // 走動
+        this.walkOffset = 0;
+        // 膨脹
+        this.scaleHeadOffset = 0;
     }
 
     // 初始化物件
@@ -81,6 +88,33 @@ class Creeper {
                 object.receiveShadow = true;
             }
         });
+    }
+
+    // 使用擺頭功能
+    creeperHeadRotate() {
+        this.rotateHeadOffset += 0.04;
+        this.head.rotation.y = Math.sin(this.rotateHeadOffset);
+    }
+
+    // 苦力怕走動
+    creeperFeetWalk() {
+        this.walkOffset += 0.04;
+
+        // 前腳左
+        this.foot1.rotation.x = Math.sin(this.walkOffset) / 4;
+        // 後腳左
+        this.foot2.rotation.x = -Math.sin(this.walkOffset) / 4;
+        // 前腳右
+        this.foot3.rotation.x = -Math.sin(this.walkOffset) / 4;
+        // 後腳右
+        this.foot4.rotation.x = Math.sin(this.walkOffset) / 4;
+    }
+
+    // 苦力怕膨脹
+    creeperScaleBody() {
+        this.scaleHeadOffset += 0.04;
+        let scaleRate = Math.abs(Math.sin(this.scaleHeadOffset)) / 16 + 1;
+        this.creeper.scale.set(scaleRate, scaleRate, scaleRate);
     }
 
     // 新增物件

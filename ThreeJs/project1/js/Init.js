@@ -35,6 +35,11 @@ class Init {
         document.getElementById('stats').appendChild(this.stats.domElement);
     }
 
+    // 取得監測器物件
+    getStats() {
+        return this.stats;
+    }
+
     // 使用旋轉視角
     useCameraControl() {
         this.cameraControl = new THREE.OrbitControls(this.camera, this.renderer.domElement);
@@ -46,32 +51,14 @@ class Init {
         // this.cameraControl.autoRotate = true;
     }
 
+    // 取得旋轉視角的控制器
+    getCameraControl() {
+        return this.cameraControl;
+    }
+
     // 三軸座標輔助
     useAxesHelper() {
         const axes = new THREE.AxesHelper(20);
         this.scene.add(axes);
-    }
-
-    // 設定光源的物件
-    setLightObj(obj) {
-        this.lightObj = obj;
-    }
-
-    // 渲染
-    render() {
-        // 重複執行
-        requestAnimationFrame(() => this.render());
-        // 有使用旋轉視角在更新
-        if(this.cameraControl !== undefined) {
-            this.cameraControl.update();
-        }
-        // 若有使用 FPS 套件在耕莘
-        if(this.stats !== undefined) {
-            this.stats.update();
-        }
-        // 點光源繞 Y 軸旋轉動畫
-        this.lightObj.pointLightAnimation();
-        // 開始渲染
-        this.renderer.render(this.scene, this.camera);
     }
 }
