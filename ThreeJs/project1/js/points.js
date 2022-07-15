@@ -79,12 +79,9 @@ function createSpherePoints() {
 }
 
 // 自訂頂點創建雪花粒子系統
-// const particleCount = 15000;
-// let points;
+let points;
+const particleCount = 15000;
 function createSnowFlakePoints() {
-    // points
-    const particleCount = 15000;
-
     const geometry = new THREE.BufferGeometry();
     const texture = new THREE.TextureLoader().load('images/snowflake.png');
     const material = new THREE.PointsMaterial({
@@ -96,28 +93,36 @@ function createSnowFlakePoints() {
         opacity: 0.7
     });
 
-    const range = 250;
-    let positions = [];
+    const range = 500;
+    let vertices = [];
     for (let i = 0; i < particleCount; i++) {
-        const x = getRandom(-range, range);
-        const y = getRandom(-range, range);
-        const z = getRandom(-range, range);
+        const x = Math.random() * range - range / 2;
+        const y = Math.random() * range - range / 2;
+        const z = Math.random() * range - range / 2;
 
-        positions.push(x, y, z);
+        vertices.push(x, y, z);
     }
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3).onUpload(disposeArray));
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
 
-    const points = new THREE.Points(geometry, material);
+    points = new THREE.Points(geometry, material);
+
+    console.log(points);
+
     scene.add(points);
 }
 
-// 產生 min 到 max 之間的亂數
-function getRandom(min,max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+// 下雪動畫
+function pointsAnimation() {
+    const array = points.geometry.attributes['position'].array;
+    let offset = 1;
+    for (let i = 0; i < particleCount; i++) {
+        array[offset] -= getRandom(0.1, 1);
+        if (array[offset] < -250) array[offset] = 250;
+        offset += 3;
+    }
 
-function disposeArray() {
-    this.array = null;
+    // 告訴渲染器需更新頂點位置
+    points.geometry.attributes.position.needsUpdate = true;
 }
 
 function render() {
@@ -126,10 +131,18 @@ function render() {
     // 若有使用 FPS 套件在耕莘
     if(stats !== undefined) { stats.update(); }
 
+    // 下雪動畫-會卡卡的尚未處理
+    pointsAnimation();
+
     // 開始渲染
     renderer.render(scene, camera);
     // 重複執行
     requestAnimationFrame(render);
+}
+
+// 產生 min 到 max 之間的亂數
+function getRandom(min,max) {
+    return Math.floor(Math.random()*(max-min+1))+min;
 }
 
 window.addEventListener('resize', function() {
