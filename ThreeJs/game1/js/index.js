@@ -10,6 +10,9 @@ let points;
 let material;
 // 粒子的數量
 const particleCount = 15000;
+let range;
+// 方向速度
+const velocitys = [];
 // 設定粒子的 skin
 const textureLoader = new THREE.TextureLoader();
 // 雪花
@@ -74,12 +77,12 @@ scene.add(plane);
 const ambientLight = new THREE.AmbientLight(0x404040);
 scene.add(ambientLight);
 // 設置聚光燈幫忙照亮物體
-let spotLight = new THREE.SpotLight(0xf0f0f0);
+const spotLight = new THREE.SpotLight(0xf0f0f0);
 spotLight.position.set(-10, 30, 20);
 // scene.add(spotLight);
 // 點光源
 // 參數：顏色, 強度, 距離
-let pointLight = new THREE.PointLight(0xf0f0f0, 1, 100);
+const pointLight = new THREE.PointLight(0xf0f0f0, 1, 100);
 // 投影
 pointLight.castShadow = true;
 pointLight.position.set(-30, 30, 30);
@@ -127,7 +130,7 @@ document.body.appendChild(renderer.domElement);
 function tweenHandler() {
     let offset = { x: 0, z: 0, rotateY: 0 };
     // 目標值
-    let target = { x: 20, z: 20, rotateY: 0.7853981633974484 };
+    let target = { x: 100, z: 100, rotateY: 0.7853981633974484 };
 
     // 苦力怕走動及轉身補間動畫
     const onUpdate = () => {
@@ -231,7 +234,7 @@ const gui = new dat.GUI();
 gui.add(datGUIControls, 'togglePlayMusic');
 gui.add(datGUIControls, 'changeScene');
 gui.add(datGUIControls, 'startTracking').onChange(function(e) {
-    startTracking = e
+    startTracking = e;
     if (invert > 0) {
         if (startTracking) {
             tweenGo.start();
@@ -260,14 +263,16 @@ function createPoints() {
         opacity: 0.5
     });
 
-    const range = 600;
+    range = 600;
     let vertices = [];
     for (let i = 0; i < particleCount; i++) {
         const x = Math.random() * range - range / 2;
         const y = Math.random() * range - range / 2;
         const z = Math.random() * range - range / 2;
+        const v = Math.random() * 0.16 - 0.16 / 2;
 
         vertices.push(x, y, z);
+        velocitys.push(v);
     }
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
     points = new THREE.Points(geometry, material);
@@ -277,13 +282,22 @@ function createPoints() {
 
 // 粒子系統動畫
 function pointsAnimation() {
-    const array = points.geometry.attributes['position'].array;
-    let offset = 1;
-    for (let i = 0; i < particleCount; i++) {
-        array[offset] -= getRandom(0.1, 0.3);
-        if (array[offset] < -250) array[offset] = 250;
-        offset += 3;
-    }
+    points.geometry.attributes.position.array.forEach(function (v, i, positions) {
+        let r = range / 2;
+
+        // 改變 x 軸位置
+        if (i % 3 === 0) {
+            positions[i] = positions[i] - velocitys[Math.floor(i / 3)];
+            if (positions[i] < -r || positions[i] > r) {
+                velocitys[Math.floor(i / 3)] = -1 * velocitys[Math.floor(i / 3)];
+            }
+        }
+        // 改變 y 軸位置
+        else if (i % 3 === 1) {
+            positions[i] = positions[i] - Math.random() * 0.2 - 0.2 / 2;
+            if (positions[i] < -r) positions[i] = r;
+        }
+    })
 
     // 告訴渲染器需更新頂點位置
     points.geometry.attributes.position.needsUpdate = true;
