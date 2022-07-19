@@ -1,21 +1,40 @@
 // 正反向
 let invert = 1;
-let startTracking = false;
 // 移動
 let tweenGo, tweenBack;
+// 是否開始移動
+let startTracking = false;
+// 粒子的頂點集合
+let points;
+// 粒子的樣式
+let material;
+// 粒子的數量
+const particleCount = 15000;
+// 設定粒子的 skin
+const textureLoader = new THREE.TextureLoader();
+// 雪花
+const snowTexture = textureLoader.load('images/snowflake.png');
+// 雨滴
+const rainTexture = textureLoader.load('images/raindrop-3.png');
+// 播放音樂 DOM
+const sound = document.querySelector('audio')
+// 是否播放音樂
+let musicPlayback = false;
 
 /* 場景 */
 const scene = new THREE.Scene();
+// 霧化場景
+scene.fog = new THREE.FogExp2(0x000000, 0.0008);
 
 /* 相機 */
 // 參數：視角、長寬比、近面距離(可以拉多近)、遠面距離(拉多遠)
-const camera = new THREE.PerspectiveCamera(60, (window.innerWidth / window.innerHeight), 0.1, 1000);
-camera.position.set(50, 50, 50);
+const camera = new THREE.PerspectiveCamera(70, (window.innerWidth / window.innerHeight), 0.1, 2000);
+camera.position.set(-100, 100, 200);
 camera.lookAt(scene.position);
 
 /* 三維輔助線 */
-const axes = new THREE.AxesHelper(20);
-scene.add(axes);
+// const axes = new THREE.AxesHelper(20);
+// scene.add(axes);
 
 /* 啟用 FPS */
 const stats = new Stats();
@@ -24,6 +43,7 @@ document.getElementById('stats').appendChild(stats.domElement);
 
 /* 渲染器設定 */
 const renderer = new THREE.WebGLRenderer();
+renderer.setClearColor(0x111111, 1.0);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 // THREE.BasicShadowMap = 0
@@ -39,7 +59,7 @@ cameraControl.enableDamping = true;
 cameraControl.dampingFactor = 0.25;
 
 /* 建立地板 */
-const planeGeometry = new THREE.PlaneGeometry(80, 80);
+const planeGeometry = new THREE.PlaneGeometry(300, 300);
 const planeMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff });
 const plane = new THREE.Mesh(planeGeometry, planeMaterial);
 plane.rotation.x = -0.5 * Math.PI;
@@ -56,10 +76,10 @@ scene.add(ambientLight);
 // 設置聚光燈幫忙照亮物體
 let spotLight = new THREE.SpotLight(0xf0f0f0);
 spotLight.position.set(-10, 30, 20);
-scene.add(spotLight);
+// scene.add(spotLight);
 // 點光源
 // 參數：顏色, 強度, 距離
-let pointLight = new THREE.PointLight(0xccffcc, 1, 100);
+let pointLight = new THREE.PointLight(0xf0f0f0, 1, 100);
 // 投影
 pointLight.castShadow = true;
 pointLight.position.set(-30, 30, 30);
@@ -67,15 +87,41 @@ scene.add(pointLight);
 
 /* 建立讓怪物跟隨相機的開關 */
 let datGUIControls = new (function() {
-    this.startTracking = false;
+    // 移動判斷
+    this.startTracking = false
+    // 音樂判斷
+    this.togglePlayMusic = function() {
+        if (musicPlayback) {
+            sound.pause();
+            musicPlayback = false;
+        } else {
+            sound.play();
+            musicPlayback = true;
+        }
+    }
+    // skin 判斷
+    this.changeScene = function() {
+        if (sceneType === 'SNOW') {
+            material.map = rainTexture;
+            material.size = 2;
+            sceneType = 'RAIN';
+        } else {
+            material.map = snowTexture;
+            material.size = 5;
+            sceneType = 'SNOW';
+        }
+    }
 })();
 
-document.body.appendChild(renderer.domElement);
+/* 建立雪花 */
+createPoints();
 
 /* 產生怪物 */
 const creeperObj = new Creeper();
 tweenHandler();
 scene.add(creeperObj.creeper);
+
+document.body.appendChild(renderer.domElement);
 
 function tweenHandler() {
     let offset = { x: 0, z: 0, rotateY: 0 };
@@ -107,16 +153,41 @@ function tweenHandler() {
     // 計算新的目標值
     const handleNewTarget = () => {
         // 限制苦力怕走路邊界
-        if (camera.position.x > 30) target.x = 20;
-        else if (camera.position.x < -30) target.x = -20;
+        const range = 100;
+        if (camera.position.x > range) target.x = range;
+        else if (camera.position.x < -range) target.x = -range;
         else target.x = camera.position.x;
-        if (camera.position.z > 30) target.z = 20;
-        else if (camera.position.z < -30) target.z = -20;
+        if (camera.position.z > range) target.z = range;
+        else if (camera.position.z < -range) target.z = -range;
         else target.z = camera.position.z;
 
         // 原點面向方向
         const v1 = new THREE.Vector2(0, 1);
         // 苦力怕面向新相機方向
+        const v2 = new THREE.Vector2(target.x, target.z);
+
+        // 內積除以純量得兩向量 cos 值
+        let cosValue = v1.dot(v2) / (v1.length() * v2.length());
+
+        // 防呆，cos 值區間為（-1, 1）
+        if (cosValue > 1) cosValue = 1;
+        else if (cosValue < -1) cosValue = -1;
+
+        // cos 值求轉身角度
+        target.rotateY = Math.acos(cosValue);
+    }
+
+    // 計算新的目標值
+    const handleNewTweenBackTarget = () => {
+        // 限制苦力怕走路邊界
+        const range = 150;
+        const tmpX = target.x;
+        const tmpZ = target.z;
+
+        target.x = THREE.Math.randFloat(-range, range);
+        target.z = THREE.Math.randFloat(-range, range);
+
+        const v1 = new THREE.Vector2(tmpX, tmpZ);
         const v2 = new THREE.Vector2(target.x, target.z);
 
         // 內積除以純量得兩向量 cos 值
@@ -136,6 +207,7 @@ function tweenHandler() {
         .easing(TWEEN.Easing.Quadratic.Out)
         .onUpdate(onUpdate)
         .onComplete(() => {
+            handleNewTweenBackTarget();
             invert = -1;
             tweenBack.start();
         });
@@ -155,13 +227,15 @@ function tweenHandler() {
 
 /* 建立開關 */
 const gui = new dat.GUI();
+gui.add(datGUIControls, 'togglePlayMusic');
+gui.add(datGUIControls, 'changeScene');
 gui.add(datGUIControls, 'startTracking').onChange(function(e) {
-    startTracking = e;
+    startTracking = e
     if (invert > 0) {
         if (startTracking) {
-            tweenGo.start();
+            tween.start();
         } else {
-            tweenGo.stop();
+            tween.stop();
         }
     } else {
         if (startTracking) {
@@ -171,6 +245,48 @@ gui.add(datGUIControls, 'startTracking').onChange(function(e) {
         }
     }
 });
+
+// 粒子系統初始化
+function createPoints() {
+    const geometry = new THREE.BufferGeometry();
+    material = new THREE.PointsMaterial({
+        size: 5,
+        map: snowTexture,
+        blending: THREE.AdditiveBlending,
+        // depthTest: false,
+        depthWrite: false,
+        transparent: true,
+        opacity: 0.5
+    });
+
+    const range = 600;
+    let vertices = [];
+    for (let i = 0; i < particleCount; i++) {
+        const x = Math.random() * range - range / 2;
+        const y = Math.random() * range - range / 2;
+        const z = Math.random() * range - range / 2;
+
+        vertices.push(x, y, z);
+    }
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    points = new THREE.Points(geometry, material);
+
+    scene.add(points);
+}
+
+// 粒子系統動畫
+function pointsAnimation() {
+    const array = points.geometry.attributes['position'].array;
+    let offset = 1;
+    for (let i = 0; i < particleCount; i++) {
+        array[offset] -= getRandom(0.1, 1);
+        if (array[offset] < -250) array[offset] = 250;
+        offset += 3;
+    }
+
+    // 告訴渲染器需更新頂點位置
+    points.geometry.attributes.position.needsUpdate = true;
+}
 
 // 渲染的方法
 function render() {
@@ -183,6 +299,9 @@ function render() {
     TWEEN.update();
     // 怪物走路
     creeperObj.creeperFeetWalk();
+
+    // 粒子系統動畫
+    pointsAnimation();
 
     // 開始渲染
     renderer.render(scene, camera);
