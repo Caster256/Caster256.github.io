@@ -81,6 +81,9 @@ function createSpherePoints() {
 // 自訂頂點創建雪花粒子系統
 let points;
 const particleCount = 15000;
+let range;
+// 方向速度
+const velocitys = [];
 function createSnowFlakePoints() {
     const geometry = new THREE.BufferGeometry();
     const texture = new THREE.TextureLoader().load('images/snowflake.png');
@@ -93,33 +96,47 @@ function createSnowFlakePoints() {
         opacity: 0.7
     });
 
-    const range = 500;
+    range = 500;
     let vertices = [];
     for (let i = 0; i < particleCount; i++) {
+        /*const x = THREE.Math.randInt(-range, range);
+        const y = THREE.Math.randInt(-range, range);
+        const z = THREE.Math.randInt(-range, range);
+        const v = THREE.Math.randFloat(-0.16, 0.16);*/
         const x = Math.random() * range - range / 2;
         const y = Math.random() * range - range / 2;
         const z = Math.random() * range - range / 2;
+        const v = Math.random() * 0.16 - 0.16 / 2;
 
         vertices.push(x, y, z);
+        velocitys.push(v);
     }
+
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
 
     points = new THREE.Points(geometry, material);
-
-    console.log(points);
 
     scene.add(points);
 }
 
 // 下雪動畫
 function pointsAnimation() {
-    const array = points.geometry.attributes['position'].array;
-    let offset = 1;
-    for (let i = 0; i < particleCount; i++) {
-        array[offset] -= getRandom(0.1, 1);
-        if (array[offset] < -250) array[offset] = 250;
-        offset += 3;
-    }
+    points.geometry.attributes.position.array.forEach(function (v, i, positions) {
+        let r = range / 2;
+
+        // 改變 x 軸位置
+        if (i % 3 === 0) {
+            positions[i] = positions[i] - velocitys[Math.floor(i/3)];
+            if (positions[i] < -r || positions[i] > r) {
+                velocitys[Math.floor(i/3)] = -1 * velocitys[Math.floor(i/3)];
+            }
+        }
+        // 改變 y 軸位置
+        else if (i % 3 === 1) {
+            positions[i] = positions[i] - Math.random() * 0.3 - 0.2 / 2;
+            if (positions[i] < -r) positions[i] = r;
+        }
+    })
 
     // 告訴渲染器需更新頂點位置
     points.geometry.attributes.position.needsUpdate = true;
