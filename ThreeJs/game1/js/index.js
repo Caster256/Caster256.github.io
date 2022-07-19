@@ -289,6 +289,11 @@ function pointsAnimation() {
     points.geometry.attributes.position.needsUpdate = true;
 }
 
+// 產生 min 到 max 之間的亂數
+function getRandom(min,max) {
+    return Math.floor(Math.random()*(max-min+1))+min;
+}
+
 // 渲染的方法
 function render() {
     // 有使用旋轉視角在更新
