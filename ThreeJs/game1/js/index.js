@@ -17,7 +17,7 @@ const snowTexture = textureLoader.load('images/snowflake.png');
 // 雨滴
 const rainTexture = textureLoader.load('images/raindrop-3.png');
 // 播放音樂 DOM
-const sound = document.querySelector('audio')
+const sound = document.querySelector('audio');
 // 是否播放音樂
 let musicPlayback = false;
 
@@ -100,6 +100,7 @@ let datGUIControls = new (function() {
         }
     }
     // skin 判斷
+    let sceneType = 'SNOW';
     this.changeScene = function() {
         if (sceneType === 'SNOW') {
             material.map = rainTexture;
@@ -184,8 +185,8 @@ function tweenHandler() {
         const tmpX = target.x;
         const tmpZ = target.z;
 
-        target.x = THREE.Math.randFloat(-range, range);
-        target.z = THREE.Math.randFloat(-range, range);
+        target.x = getRandom(-range, range);
+        target.z = getRandom(-range, range);
 
         const v1 = new THREE.Vector2(tmpX, tmpZ);
         const v2 = new THREE.Vector2(target.x, target.z);
@@ -233,9 +234,9 @@ gui.add(datGUIControls, 'startTracking').onChange(function(e) {
     startTracking = e
     if (invert > 0) {
         if (startTracking) {
-            tween.start();
+            tweenGo.start();
         } else {
-            tween.stop();
+            tweenGo.stop();
         }
     } else {
         if (startTracking) {
@@ -279,7 +280,7 @@ function pointsAnimation() {
     const array = points.geometry.attributes['position'].array;
     let offset = 1;
     for (let i = 0; i < particleCount; i++) {
-        array[offset] -= getRandom(0.1, 1);
+        array[offset] -= getRandom(0.1, 0.3);
         if (array[offset] < -250) array[offset] = 250;
         offset += 3;
     }
